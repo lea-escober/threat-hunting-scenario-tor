@@ -1,4 +1,4 @@
-<img width="1536" height="1024" alt="ChatGPT Image Jun 6, 2026, 02_15_50 PM" src="https://github.com/user-attachments/assets/2f03d2c3-a38b-49dc-827c-00f4849d379d" />
+<img width="768" height="512" alt="ChatGPT Image Jun 6, 2026, 02_15_50 PM" src="https://github.com/user-attachments/assets/2f03d2c3-a38b-49dc-827c-00f4849d379d" />
 
 
 # Threat Hunt Report: Unauthorized TOR Usage
