@@ -43,18 +43,19 @@ DeviceFileEvents
 
 ### 2. Searched the `DeviceProcessEvents` Table
 
-Searched for any `ProcessCommandLine` that contained the string "tor-browser-windows-x86_64-portable-14.0.1.exe". Based on the logs returned, at `2024-11-08T22:16:47.4484567Z`, an employee on the "threat-hunt-lab" device ran the file `tor-browser-windows-x86_64-portable-14.0.1.exe` from their Downloads folder, using a command that triggered a silent installation.
+A review of the DeviceProcessEvents table was conducted to identify process executions associated with the Tor Browser installer `tor-browser-windows-x86_64-portable-15.0.15.exe`. The investigation revealed that at `2026-06-04T21:54:50.5553783Z`, the user account "lea" on device "lea-threat-hunt" executed the installer directly from the Downloads directory (`C:\Users\Lea\Downloads`). The process was launched with the `/S` command-line parameter, indicating that the application was installed or extracted in silent mode, suppressing installation prompts and requiring no user interaction. This activity confirms the intentional execution of a portable Tor Browser package and the subsequent deployment of Tor Browser components onto the system. The use of silent installation parameters may reduce visible indicators of installation activity while enabling anonymous internet access through the Tor network.
 
 **Query used to locate event:**
 
 ```kql
 
-DeviceProcessEvents  
-| where DeviceName == "threat-hunt-lab"  
-| where ProcessCommandLine contains "tor-browser-windows-x86_64-portable-14.0.1.exe"  
-| project Timestamp, DeviceName, AccountName, ActionType, FileName, FolderPath, SHA256, ProcessCommandLine
+DeviceProcessEvents
+| where DeviceName == "lea-threat-hunt"
+| where FileName contains "tor"
+| project Timestamp, DeviceName, FileName, ProcessCommandLine, FolderPath
+| order by Timestamp asc  
 ```
-<img width="1212" alt="image" src="https://github.com/user-attachments/assets/b07ac4b4-9cb3-4834-8fac-9f5f29709d78">
+<img width="1690" height="372" alt="image" src="https://github.com/user-attachments/assets/e035cc8e-aa26-42d6-90df-69c3b04c9555" />
 
 ---
 
