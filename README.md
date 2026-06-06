@@ -5,7 +5,7 @@
 - [Scenario Creation](https://github.com/lea-escober/threat-hunting-scenario-tor/blob/main/threat-hunting-scenario-tor-event-creation.md)
 
 ## Platforms and Languages Leveraged
-- Windows 10 Virtual Machines (Microsoft Azure)
+- Windows 11 Virtual Machines (Microsoft Azure)
 - EDR Platform: Microsoft Defender for Endpoint
 - Kusto Query Language (KQL)
 - Tor Browser
@@ -25,21 +25,19 @@ Management suspects that some employees may be using TOR browsers to bypass netw
 ## Steps Taken
 
 ### 1. Searched the `DeviceFileEvents` Table
-
-Searched for any file that had the string "tor" in it and discovered what looks like the user "employee" downloaded a TOR installer, did something that resulted in many TOR-related files being copied to the desktop, and the creation of a file called `tor-shopping-list.txt` on the desktop at `2024-11-08T22:27:19.7259964Z`. These events began at `2024-11-08T22:14:48.6065231Z`.
+A review of the DeviceFileEvents table was conducted to identify any files containing the string "tor". The results revealed that the user account "lea" on device "lea-threat-hunt" downloaded a Tor Browser installer and subsequently generated numerous Tor-related files on the system. File activity indicates that Tor Browser components were extracted or copied to the user's Desktop, resulting in the creation of the Tor Browser directory structure. Additionally, a file named `tor-shopping-list.txt` was created on the Desktop. The earliest observed Tor-related file activity occurred at `2026-06-04T21:52:18.9467969Z`, providing the first indication of Tor Browser introduction onto the system.
 
 **Query used to locate events:**
 
 ```kql
-DeviceFileEvents  
-| where DeviceName == "threat-hunt-lab"  
-| where InitiatingProcessAccountName == "employee"  
-| where FileName contains "tor"  
-| where Timestamp >= datetime(2024-11-08T22:14:48.6065231Z)  
-| order by Timestamp desc  
+DeviceFileEvents
+| where DeviceName == "lea-threat-hunt"
+| where InitiatingProcessAccountName == "lea"
+| where FileName contains "tor"
+| order by Timestamp desc
 | project Timestamp, DeviceName, ActionType, FileName, FolderPath, SHA256, Account = InitiatingProcessAccountName
 ```
-<img width="1212" alt="image" src="https://github.com/user-attachments/assets/71402e84-8767-44f8-908c-1805be31122d">
+<img width="1807" height="512" alt="image" src="https://github.com/user-attachments/assets/b7c9bbd7-58c5-46e3-9ae9-3f8ab34f0a3a" />
 
 ---
 
