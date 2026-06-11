@@ -61,37 +61,36 @@ DeviceProcessEvents
 
 ### 3. Searched the `DeviceProcessEvents` Table for TOR Browser Execution
 
-Searched for any indication that user "employee" actually opened the TOR browser. There was evidence that they did open it at `2024-11-08T22:17:21.6357935Z`. There were several other instances of `firefox.exe` (TOR) as well as `tor.exe` spawned afterwards.
+Analysis of `DeviceProcessEvents` showed that the user account "lea" launched Tor Browser on the device "lea-threat-hunt." The activity included execution of `tor.exe`, which establishes connections to the Tor network, followed by the creation of multiple `firefox.exe` child processes associated with the Tor Browser application. While the process activity confirms that Tor Browser was opened and initialized successfully, additional network telemetry would be required to determine whether the browser was actively used to access websites or transfer data through the Tor network. 
 
 **Query used to locate events:**
 
 ```kql
-DeviceProcessEvents  
-| where DeviceName == "threat-hunt-lab"  
-| where FileName has_any ("tor.exe", "firefox.exe", "tor-browser.exe")  
-| project Timestamp, DeviceName, AccountName, ActionType, FileName, FolderPath, SHA256, ProcessCommandLine  
+DeviceProcessEvents
+| where DeviceName == "lea-threat-hunt"
+| where FileName has_any ("tor.exe", "firefox.exe", "tor-browser.exe")
+| project Timestamp, DeviceName, AccountName, ActionType, FileName, SHA256, ProcessCommandLine
 | order by Timestamp desc
 ```
-<img width="1212" alt="image" src="https://github.com/user-attachments/assets/b13707ae-8c2d-4081-a381-2b521d3a0d8f">
+<img width="1647" height="506" alt="image" src="https://github.com/user-attachments/assets/4ba42407-c08a-462b-8496-9ab5ad1a3a8f" />
 
 ---
 
 ### 4. Searched the `DeviceNetworkEvents` Table for TOR Network Connections
 
-Searched for any indication the TOR browser was used to establish a connection using any of the known TOR ports. At `2024-11-08T22:18:01.1246358Z`, an employee on the "threat-hunt-lab" device successfully established a connection to the remote IP address `176.198.159.33` on port `9001`. The connection was initiated by the process `tor.exe`, located in the folder `c:\users\employee\desktop\tor browser\browser\torbrowser\tor\tor.exe`. There were a couple of other connections to sites over port `443`.
+Analysis of `DeviceNetworkEvents` showed that the user account "lea" on the device "lea-threat-hunt" successfully established multiple outbound network connections associated with Tor Browser activity. The process `tor.exe` connected to several external public IP addresses over TCP port `9001`, a port commonly used by Tor relay nodes to route encrypted traffic through the Tor network. Connections were observed to multiple remote systems, including IP addresses `65.109.233.53`, `89.190.5.230`, and `57.129.62.226`, indicating that Tor successfully joined and communicated with the Tor network. In addition, `firefox.exe` established a connection to the local address `127.0.0.1` on port `9150`, which is the default SOCKS proxy port used by Tor Browser to route web traffic through the Tor service. These successful network connections confirm that Tor Browser was not only launched but also successfully initialized and actively communicating with the Tor network at the time of the observed activity. 
 
 **Query used to locate events:**
 
 ```kql
-DeviceNetworkEvents  
-| where DeviceName == "threat-hunt-lab"  
-| where InitiatingProcessAccountName != "system"  
-| where InitiatingProcessFileName in ("tor.exe", "firefox.exe")  
-| where RemotePort in ("9001", "9030", "9040", "9050", "9051", "9150", "80", "443")  
-| project Timestamp, DeviceName, InitiatingProcessAccountName, ActionType, RemoteIP, RemotePort, RemoteUrl, InitiatingProcessFileName, InitiatingProcessFolderPath  
+DeviceNetworkEvents
+| where DeviceName == "lea-threat-hunt"
+| where InitiatingProcessFileName in ("tor.exe","firefox.exe")
+| where RemotePort in ("9001", "9030", "9040", "9050", "9051", "9150")
+| project Timestamp, DeviceName, InitiatingProcessAccountName, ActionType, RemoteIP, RemotePort, RemoteUrl, InitiatingProcessFileName
 | order by Timestamp desc
 ```
-<img width="1212" alt="image" src="https://github.com/user-attachments/assets/87a02b5b-7d12-4f53-9255-f5e750d0e3cb">
+<img width="1407" height="342" alt="image" src="https://github.com/user-attachments/assets/b9e33419-1a17-4d34-ba2d-16600f4c4fe2" />
 
 ---
 
